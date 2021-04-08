@@ -39,10 +39,17 @@ users = {
 def get_users():
    if request.method == 'GET':
       search_username = request.args.get('name')
-      if search_username :
+      search_job = request.args.get('job')
+      if search_username and search_job is None:
          subdict = {'users_list' : []}
          for user in users['users_list']:
             if user['name'] == search_username:
+               subdict['users_list'].append(user)
+         return subdict
+      elif search_username and search_job:
+         subdict = {'users_list' : []}
+         for user in users['users_list']:
+            if user['name'] == search_username and user['job'] == search_job:
                subdict['users_list'].append(user)
          return subdict
       return users
@@ -54,15 +61,25 @@ def get_users():
       # 200 is the default code for a normal response
       return resp
 
-@app.route('/users/<id>')
+@app.route('/users/<id>', methods = ['GET', 'DELETE'])
 def get_user(id):
-   if id :
-      for user in users['users_list']:
-        if user['id'] == id:
-           return user
-      return ({})
-   return users
-  
+   if request.method == 'GET':
+      if id :
+         for user in users['users_list']:
+            if user['id'] == id:
+               return user
+         return ({})
+      return users
+   elif request.method == 'DELETE':
+      if id:
+         for user in users['users_list']:
+            if user['id'] == id:
+               users['users_list'].remove(user)
+               resp = jsonify(successs=True)
+               return resp
+            resp = jsonify(success = False)
+            return resp
+
 @app.route('/')
 def hello_world():
     return 'Hello, World!'

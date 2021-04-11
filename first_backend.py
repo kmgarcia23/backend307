@@ -1,8 +1,10 @@
 from flask import Flask
 from flask import request
 from flask import jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 users = { 
    'users_list' :
@@ -67,7 +69,7 @@ def get_user(id):
       if id :
          for user in users['users_list']:
             if user['id'] == id:
-               return user
+               return user 
          return ({})
       return users
    elif request.method == 'DELETE':

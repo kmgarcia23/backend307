@@ -2,6 +2,8 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 from flask_cors import CORS
+import random
+import string
 
 app = Flask(__name__)
 CORS(app)
@@ -56,12 +58,19 @@ def get_users():
          return subdict
       return users
    elif request.method == 'POST':
-      userToAdd = request.get_json()
-      users['users_list'].append(userToAdd)
-      resp = jsonify(success=True)
-      resp.status_code = 201 #optionally, you can always set a response code. 
-      # 200 is the default code for a normal response
-      return resp
+	   userToAdd = request.get_json()
+	   userToAdd['id'] = gen_rand_ID()
+	   users['users_list'].append(userToAdd)
+	   resp = jsonify(name=userToAdd['name'],job=userToAdd['job'],id=userToAdd['id'],success=True)
+	   resp.status_code = 201 #optionally, you can always set a response code. 
+	   # 200 is the default code for a normal response
+	   return resp
+def gen_rand_ID():
+	letsandnums = string.ascii_letters +string.digits
+	randid = ""
+	for i in range(6):
+		randid += random.choice(letsandnums)
+	return randid
 
 @app.route('/users/<id>', methods = ['GET', 'DELETE'])
 def get_user(id):
@@ -77,10 +86,12 @@ def get_user(id):
          for user in users['users_list']:
             if user['id'] == id:
                users['users_list'].remove(user)
-               resp = jsonify(successs=True)
+               resp = jsonify(success = True)
+               resp.status_code = 204
                return resp
-            resp = jsonify(success = False)
-            return resp
+      resp = jsonify(success = False)
+      resp.status_code = 404
+      return resp
 
 @app.route('/')
 def hello_world():
